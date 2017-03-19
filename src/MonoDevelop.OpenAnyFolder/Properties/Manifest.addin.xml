@@ -1,4 +1,25 @@
 ﻿<ExtensionModel>
 	<Runtime>
 	</Runtime>
+
+	<Extension path="/MonoDevelop/Ide/Commands">
+		<Category _name="OpenFolder" id="OpenFolder">
+			<Command
+				id="MonoDevelop.OpenAnyFolder.Commands.OpenFolder"
+				_description="Open Folder"
+				_label="Open Folder..."
+				defaultHandler="MonoDevelop.OpenAnyFolder.OpenFolderHandler" />
+		</Category>
+	</Extension>
+
+	<Extension path="/MonoDevelop/Ide/MainMenu/File">
+		<CommandItem
+			id="MonoDevelop.OpenAnyFolder.Commands.OpenFolder"
+			insertbefore="OpenSep"
+			insertafter="MonoDevelop.Ide.Commands.FileCommands.OpenFile" />
+	</Extension>
+
+	<Extension path = "/MonoDevelop/ProjectModel/WorkspaceObjectReaders">
+		<Class id="OpenFolder.Workspace" class="MonoDevelop.OpenAnyFolder.FolderWorkspaceObjectReader" />
+	</Extension>
 </ExtensionModel>

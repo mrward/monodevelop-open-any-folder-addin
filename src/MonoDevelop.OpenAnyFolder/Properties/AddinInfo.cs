@@ -2,8 +2,8 @@
 using Mono.Addins.Description;
 
 [assembly: Addin (
-	"MonoDevelop.OpenAnyFolder",
-	Namespace = "MonoDevelop.OpenAnyFolder",
+	"OpenAnyFolder",
+	Namespace = "MonoDevelop",
 	Version = "0.1"
 )]
 
