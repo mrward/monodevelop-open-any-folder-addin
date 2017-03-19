@@ -25,11 +25,28 @@
 // THE SOFTWARE.
 
 using MonoDevelop.Projects;
+using MonoDevelop.Ide;
 
 namespace MonoDevelop.OpenAnyFolder
 {
 	static class WorkspaceExtensions
 	{
+		static WorkspaceExtensions ()
+		{
+			if (!IdeApp.IsInitialized)
+				return;
+
+			IdeApp.Workspace.WorkspaceItemOpened += WorkspaceItemOpened;
+		}
+
+		static void WorkspaceItemOpened (object sender, WorkspaceItemEventArgs e)
+		{
+			var workspace = e.Item as Workspace;
+			if (workspace != null && workspace.IsFolder ()) {
+				DesktopService.RecentFiles.UpdateDisplayNameForFolder (workspace.FileName);
+			}
+		}
+
 		public static void MarkAsFolder (this WorkspaceObject workspace)
 		{
 			workspace.ExtendedProperties.Add ("Workspace.IsFolder", "true");

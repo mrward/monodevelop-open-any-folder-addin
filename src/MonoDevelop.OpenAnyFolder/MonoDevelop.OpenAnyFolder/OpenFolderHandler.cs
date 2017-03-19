@@ -67,8 +67,6 @@ namespace MonoDevelop.OpenAnyFolder
 
 			workspace.MarkAsFolder ();
 			IdeApp.Workspace.Items.Add (workspace);
-
-			DesktopService.RecentFiles.UpdateDisplayNameForFolder (fileName);
 		}
 	}
 }
