@@ -1,5 +1,5 @@
 ﻿//
-// FolderWorkspaceObjectReader.cs
+// WorkspaceExtensions.cs
 //
 // Author:
 //       Matt Ward <matt.ward@xamarin.com>
@@ -24,35 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using MonoDevelop.Core;
 using MonoDevelop.Projects;
 
 namespace MonoDevelop.OpenAnyFolder
 {
-	public class FolderWorkspaceObjectReader : WorkspaceObjectReader
+	static class WorkspaceExtensions
 	{
-		public override bool CanRead (FilePath file, Type expectedType)
+		public static void MarkAsFolder (this WorkspaceObject workspace)
 		{
-			if (expectedType.IsAssignableFrom (typeof(Workspace))) {
-				string ext = Path.GetExtension (file);
-				if (string.Equals (ext, ".fws", StringComparison.OrdinalIgnoreCase))
-					return true;
-			}
-			return false;
+			workspace.ExtendedProperties.Add ("Workspace.IsFolder", "true");
 		}
 
-		public override Task<WorkspaceItem> LoadWorkspaceItem (ProgressMonitor monitor, string fileName)
+		public static bool IsFolder (this WorkspaceObject workspace)
 		{
-			return Task.Run (async () => {
-				WorkspaceItem workspace = new Workspace ();
-				workspace.FileName = fileName;
-				workspace.MarkAsFolder ();
-				await workspace.LoadUserProperties ().ConfigureAwait (false);
-				return workspace;
-			});
+			return workspace.ExtendedProperties.Contains ("Workspace.IsFolder");
 		}
 	}
 }

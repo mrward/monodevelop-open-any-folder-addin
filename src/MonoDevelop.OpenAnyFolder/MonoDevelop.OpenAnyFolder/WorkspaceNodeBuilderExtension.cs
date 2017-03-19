@@ -1,5 +1,5 @@
 ﻿//
-// FolderWorkspaceObjectReader.cs
+// WorkspaceNodeBuilderExtension.cs
 //
 // Author:
 //       Matt Ward <matt.ward@xamarin.com>
@@ -25,34 +25,28 @@
 // THE SOFTWARE.
 
 using System;
-using System.IO;
-using System.Threading.Tasks;
-using MonoDevelop.Core;
+using MonoDevelop.Ide.Gui;
+using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Projects;
 
 namespace MonoDevelop.OpenAnyFolder
 {
-	public class FolderWorkspaceObjectReader : WorkspaceObjectReader
+	public class WorkspaceNodeBuilderExtension : NodeBuilderExtension
 	{
-		public override bool CanRead (FilePath file, Type expectedType)
+		public override bool CanBuildNode (Type dataType)
 		{
-			if (expectedType.IsAssignableFrom (typeof(Workspace))) {
-				string ext = Path.GetExtension (file);
-				if (string.Equals (ext, ".fws", StringComparison.OrdinalIgnoreCase))
-					return true;
-			}
-			return false;
+			return typeof (Workspace).IsAssignableFrom (dataType);
 		}
 
-		public override Task<WorkspaceItem> LoadWorkspaceItem (ProgressMonitor monitor, string fileName)
+		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, NodeInfo nodeInfo)
 		{
-			return Task.Run (async () => {
-				WorkspaceItem workspace = new Workspace ();
-				workspace.FileName = fileName;
-				workspace.MarkAsFolder ();
-				await workspace.LoadUserProperties ().ConfigureAwait (false);
-				return workspace;
-			});
+			var workspace = (Workspace)dataObject;
+			if (!workspace.IsFolder ())
+				return;
+
+			nodeInfo.Label = workspace.Name.Substring (1);
+			nodeInfo.Icon = Context.GetIcon (Stock.OpenFolder);
+			nodeInfo.ClosedIcon = Context.GetIcon (Stock.ClosedFolder);
 		}
 	}
 }

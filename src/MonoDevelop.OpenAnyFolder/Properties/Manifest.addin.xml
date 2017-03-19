@@ -19,7 +19,13 @@
 			insertafter="MonoDevelop.Ide.Commands.FileCommands.OpenFile" />
 	</Extension>
 
+	<Extension path="/MonoDevelop/Ide/Pads/ProjectPad">
+		<NodeBuilder
+			id="OpenAnyFolder.WorkspaceNodeBuilderExtension"
+			class="MonoDevelop.OpenAnyFolder.WorkspaceNodeBuilderExtension" />
+	</Extension>
+
 	<Extension path = "/MonoDevelop/ProjectModel/WorkspaceObjectReaders">
-		<Class id="OpenFolder.Workspace" class="MonoDevelop.OpenAnyFolder.FolderWorkspaceObjectReader" />
+		<Class id="OpenAnyFolder.Workspace" class="MonoDevelop.OpenAnyFolder.FolderWorkspaceObjectReader" />
 	</Extension>
 </ExtensionModel>

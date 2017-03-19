@@ -63,6 +63,7 @@ namespace MonoDevelop.OpenAnyFolder
 			workspace.FileName = fileName;
 			await IdeApp.ProjectOperations.SaveAsync (workspace);
 
+			workspace.MarkAsFolder ();
 			IdeApp.Workspace.Items.Add (workspace);
 
 			DesktopService.RecentFiles.UpdateDisplayNameForFolder (fileName);
