@@ -56,8 +56,10 @@ namespace MonoDevelop.OpenAnyFolder
 			FilePath fileName = folder.Combine ("." + folder.FileName + ".fws");
 			Directory.CreateDirectory (fileName.ParentDirectory);
 
-			if (File.Exists (fileName))
+			if (File.Exists (fileName)) {
 				await IdeApp.Workspace.OpenWorkspaceItem (fileName);
+				return;
+			}
 
 			var workspace = new Workspace ();
 			workspace.FileName = fileName;
