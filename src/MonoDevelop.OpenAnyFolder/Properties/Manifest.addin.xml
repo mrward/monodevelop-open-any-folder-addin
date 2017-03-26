@@ -23,6 +23,9 @@
 		<NodeBuilder
 			id="OpenAnyFolder.WorkspaceNodeBuilderExtension"
 			class="MonoDevelop.OpenAnyFolder.WorkspaceNodeBuilderExtension" />
+		<NodeBuilder
+			id="OpenAnyFolder.WorkspaceFolderNodeBuilderExtension"
+			class="MonoDevelop.OpenAnyFolder.WorkspaceFolderNodeBuilderExtension" />
 	</Extension>
 
 	<Extension path = "/MonoDevelop/ProjectModel/WorkspaceObjectReaders">

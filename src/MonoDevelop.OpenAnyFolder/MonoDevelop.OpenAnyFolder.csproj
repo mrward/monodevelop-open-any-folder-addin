@@ -33,6 +33,7 @@
     <Compile Include="MonoDevelop.OpenAnyFolder\FolderWorkspaceObjectReader.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceNodeBuilderExtension.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceExtensions.cs" />
+    <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolderNodeBuilderExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
