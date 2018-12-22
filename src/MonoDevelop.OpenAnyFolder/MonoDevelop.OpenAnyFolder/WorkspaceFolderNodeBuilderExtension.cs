@@ -32,6 +32,7 @@ using System;
 using System.IO;
 using System.Linq;
 using MonoDevelop.Core;
+using MonoDevelop.Ide;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Projects;
@@ -43,6 +44,17 @@ namespace MonoDevelop.OpenAnyFolder
 		public override bool CanBuildNode (Type dataType)
 		{
 			return typeof(IFolderItem).IsAssignableFrom (dataType);
+		}
+
+		protected override void Initialize ()
+		{
+			IdeApp.Workspace.FileAddedToProject += OnFileAddedToProject;
+			FileService.FileCreated += OnFileCreated;
+		}
+
+		public override void Dispose ()
+		{
+			FileService.FileCreated -= OnFileCreated;
 		}
 
 		public override bool HasChildNodes (ITreeBuilder builder, object dataObject)
@@ -65,7 +77,66 @@ namespace MonoDevelop.OpenAnyFolder
 					.Select (file => new SystemFile (file, null, false)));
 
 				treeBuilder.AddChildren (Directory.EnumerateDirectories (path)
-					.Select (folder => new ProjectFolder (folder, null)));
+					.Select (folder => new ProjectFolder (folder, new DummyProject (folder))));
+			}
+		}
+
+		void OnFileAddedToProject (object sender, ProjectFileEventArgs e)
+		{
+		}
+
+		void OnFileCreated (object sender, FileEventArgs args)
+		{
+			foreach (FileEventInfo e in args) {
+				if (e.IsDirectory) {
+					EnsureReachable (e.FileName + "/");
+				} else {
+					AddFile (e.FileName);
+				}
+			}
+		}
+
+		void EnsureReachable (string path)
+		{
+			string childPath;
+			ITreeBuilder builder = FindParentFolderNode (path, out childPath);
+			if (builder != null && childPath != path) {
+				builder.AddChild (new ProjectFolder (childPath, null));
+			}
+		}
+
+		ITreeBuilder FindParentFolderNode (string path, out string lastChildPath)
+		{
+			lastChildPath = path;
+			string basePath = Path.GetDirectoryName (path);
+
+			if (string.IsNullOrEmpty (basePath))
+				return null;
+
+			ITreeBuilder builder = Context.GetTreeBuilder (new ProjectFolder (basePath, null));
+			if (builder != null)
+				return builder;
+
+			return FindParentFolderNode (basePath, out lastChildPath);
+		}
+
+		void AddFile (string fileName)
+		{
+			ITreeBuilder builder = Context.GetTreeBuilder ();
+			string filePath = Path.GetDirectoryName (fileName);
+
+			var file = new SystemFile (fileName, null);
+
+			// Already there?
+			if (builder.MoveToObject (file))
+				return;
+
+			if (builder.MoveToObject (new ProjectFolder (filePath, null))) {
+				if (builder.Filled)
+					builder.AddChild (file);
+			} else {
+				// Make sure there is a path to that folder
+				EnsureReachable (fileName);
 			}
 		}
 	}

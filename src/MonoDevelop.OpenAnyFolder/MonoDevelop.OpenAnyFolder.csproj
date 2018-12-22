@@ -35,6 +35,7 @@
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceNodeBuilderExtension.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceExtensions.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolderNodeBuilderExtension.cs" />
+    <Compile Include="MonoDevelop.OpenAnyFolder\DummyProject.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
