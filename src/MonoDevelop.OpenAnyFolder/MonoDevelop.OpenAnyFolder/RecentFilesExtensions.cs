@@ -41,7 +41,7 @@ namespace MonoDevelop.OpenAnyFolder
 
 		public static void UpdateDisplayNameForFolder (this RecentFiles recentFiles, FilePath fileName)
 		{
-			string displayName = GettextCatalog.GetString ("{0} [Folder]", fileName.ParentDirectory.FileName);
+			string displayName = GettextCatalog.GetString ("{0} (Folder)", fileName.ParentDirectory.FileName);
 			recentFiles.AddProject (fileName, displayName);
 		}
 	}
