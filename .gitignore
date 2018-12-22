@@ -3,3 +3,5 @@ bin
 *.userprefs
 *.DS_Store
 packages
+.vs/
+*.user
