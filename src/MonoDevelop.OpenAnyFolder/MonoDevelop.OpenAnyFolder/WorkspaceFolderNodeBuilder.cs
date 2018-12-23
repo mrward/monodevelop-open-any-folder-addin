@@ -53,5 +53,11 @@ namespace MonoDevelop.OpenAnyFolder
 			nodeInfo.Icon = Context.GetIcon (Stock.OpenFolder);
 			nodeInfo.ClosedIcon = Context.GetIcon (Stock.ClosedFolder);
 		}
+
+		public override int GetSortIndex (ITreeNavigator node)
+		{
+			// Ensure folders are shown in the Solution window before files.
+			return -100;
+		}
 	}
 }
