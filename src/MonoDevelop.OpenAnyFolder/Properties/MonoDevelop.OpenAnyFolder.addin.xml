@@ -9,6 +9,11 @@
 				_description="Open Folder"
 				_label="Open Folder..."
 				defaultHandler="MonoDevelop.OpenAnyFolder.OpenFolderHandler" />
+			<Command
+				id="MonoDevelop.OpenAnyFolder.Commands.NewWorkspaceFile"
+				_description="New File"
+				_label="New File..."
+				defaultHandler="MonoDevelop.OpenAnyFolder.NewWorkspaceFileHandler" />
 		</Category>
 	</Extension>
 
@@ -36,10 +41,15 @@
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
-		<ItemSet id = "Add" _label = "_Add" autohide="True">
-			<Condition id="ItemType" value="MonoDevelop.OpenAnyFolder.WorkspaceFolder">
+		<Condition id="ItemType" value="Workspace">
+			<ItemSet id="Add" _label="_Add" autohide="True">
+				<CommandItem id="MonoDevelop.OpenAnyFolder.Commands.NewWorkspaceFile" />
+			</ItemSet>
+		</Condition>
+		<Condition id="ItemType" value="MonoDevelop.OpenAnyFolder.WorkspaceFolder">
+			<ItemSet id="Add" _label="_Add" autohide="True">
 				<CommandItem id="MonoDevelop.Ide.Commands.ProjectCommands.AddNewFiles" />
-			</Condition>
-		</ItemSet>
+			</ItemSet>
+		</Condition>
 	</Extension>
 </ExtensionModel>

@@ -127,19 +127,32 @@ namespace MonoDevelop.OpenAnyFolder
 			ITreeBuilder builder = Context.GetTreeBuilder ();
 			string filePath = Path.GetDirectoryName (fileName);
 
-			var file = new SystemFile (fileName, null);
+			var file = new SystemFile (fileName, null, false);
 
 			// Already there?
 			if (builder.MoveToObject (file))
 				return;
 
-			if (builder.MoveToObject (new WorkspaceFolder (filePath))) {
+			var folder = new WorkspaceFolder (filePath);
+			if (builder.MoveToObject (folder) || MoveToWorkspace (builder, filePath)) {
 				if (builder.Filled)
 					builder.AddChild (file);
 			} else {
 				// Make sure there is a path to that folder
 				EnsureReachable (fileName);
 			}
+		}
+
+		bool MoveToWorkspace (ITreeBuilder builder, FilePath directoryPath)
+		{
+			Workspace workspace = builder.GetParentDataItem<Workspace> (true);
+			if (workspace == null)
+				return false;
+
+			if (!builder.MoveToObject (workspace))
+				return false;
+
+			return workspace.BaseDirectory == directoryPath;
 		}
 	}
 }
