@@ -2,8 +2,10 @@
 // WorkspaceFolderCommandHandler.cs
 //
 // Author:
+//       Lluis Sanchez Gual
 //       Matt Ward <matt.ward@microsoft.com>
 //
+// Copyright (C) 2005 Novell, Inc (http://www.novell.com)
 // Copyright (c) 2018 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,10 +26,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// Based on FolderCommandHandler
+// MonoDevelop.Ide/MonoDevelop.Ide.Gui.Pads.ProjectPad/FolderNodeBuilder.cs
+
+using System.IO;
 using MonoDevelop.Components.Commands;
+using MonoDevelop.Core;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Gui.Components;
+using MonoDevelop.Ide.Gui.Pads;
 
 namespace MonoDevelop.OpenAnyFolder
 {
@@ -44,6 +52,46 @@ namespace MonoDevelop.OpenAnyFolder
 			CurrentNode.Expanded = true;
 			if (IdeApp.Workbench.ActiveDocument != null)
 				IdeApp.Workbench.ActiveDocument.Window.SelectWindow ();
+		}
+
+		[CommandHandler (ProjectCommands.NewFolder)]
+		void AddNewFolder ()
+		{
+			CurrentNode.Expanded = true;
+
+			var folder = (WorkspaceFolder)CurrentNode.DataItem;
+			string directoryName = CreateNewDirectory (folder.BaseDirectory);
+
+			Tree.AddNodeInsertCallback (new WorkspaceFolder (directoryName), new TreeNodeCallback (OnFolderNodeInserted));
+		}
+
+		string CreateNewDirectory (FilePath baseDirectory)
+		{
+			string directoryName = Path.Combine (baseDirectory, GettextCatalog.GetString ("New Folder"));
+			int index = -1;
+
+			if (Directory.Exists (directoryName)) {
+				bool exists = true;
+				while (exists) {
+					++index;
+					string newDirectoryName = directoryName + (index + 1);
+					exists = Directory.Exists (newDirectoryName);
+				}
+			}
+
+			if (index >= 0) {
+				directoryName += index + 1;
+			}
+
+			Directory.CreateDirectory (directoryName);
+
+			return directoryName;
+		}
+
+		void OnFolderNodeInserted (ITreeNavigator nav)
+		{
+			nav.Selected = true;
+			Tree.StartLabelEdit ();
 		}
 	}
 }

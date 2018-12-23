@@ -90,7 +90,7 @@ namespace MonoDevelop.OpenAnyFolder
 		void OnFileCreated (object sender, FileEventArgs args)
 		{
 			foreach (FileEventInfo e in args) {
-				if (e.IsDirectory) {
+				if (Directory.Exists (e.FileName)) {
 					EnsureReachable (e.FileName + "/");
 				} else {
 					AddFile (e.FileName);

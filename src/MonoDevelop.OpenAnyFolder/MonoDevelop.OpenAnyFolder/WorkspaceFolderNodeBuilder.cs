@@ -40,6 +40,11 @@ namespace MonoDevelop.OpenAnyFolder
 			get { return typeof (WorkspaceFolderCommandHandler); }
 		}
 
+		public override void GetNodeAttributes (ITreeNavigator parentNode, object dataObject, ref NodeAttributes attributes)
+		{
+			attributes |= NodeAttributes.AllowRename;
+		}
+
 		public override string GetNodeName (ITreeNavigator thisNode, object dataObject)
 		{
 			var folder = (WorkspaceFolder)dataObject;

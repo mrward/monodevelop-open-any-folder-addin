@@ -49,6 +49,8 @@
 		<Condition id="ItemType" value="MonoDevelop.OpenAnyFolder.WorkspaceFolder">
 			<ItemSet id="Add" _label="_Add" autohide="True">
 				<CommandItem id="MonoDevelop.Ide.Commands.ProjectCommands.AddNewFiles" />
+				<SeparatorItem/>
+				<CommandItem id="MonoDevelop.Ide.Commands.ProjectCommands.NewFolder" />
 			</ItemSet>
 		</Condition>
 	</Extension>
