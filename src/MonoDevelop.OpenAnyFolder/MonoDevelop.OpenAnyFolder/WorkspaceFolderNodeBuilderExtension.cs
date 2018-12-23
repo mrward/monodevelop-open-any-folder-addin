@@ -73,12 +73,18 @@ namespace MonoDevelop.OpenAnyFolder
 			string path = GetFolderPath (dataObject);
 			if (Directory.Exists (path)) {
 				treeBuilder.AddChildren (Directory.EnumerateFiles (path)
-					.Where (file => !new FilePath (file).FileName.StartsWith (".", StringComparison.OrdinalIgnoreCase))
+					.Where (file => !IsHidden (file))
 					.Select (file => new SystemFile (file, null, false)));
 
 				treeBuilder.AddChildren (Directory.EnumerateDirectories (path)
+					.Where (file => !IsHidden (file))
 					.Select (folder => new WorkspaceFolder (folder)));
 			}
+		}
+
+		static bool IsHidden (string file)
+		{
+			return new FilePath (file).FileName.StartsWith (".", StringComparison.OrdinalIgnoreCase);
 		}
 
 		void OnFileCreated (object sender, FileEventArgs args)
