@@ -40,7 +40,9 @@
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolderCommandHandler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Manifest.addin.xml" />
+    <EmbeddedResource Include="Properties\MonoDevelop.OpenAnyFolder.addin.xml">
+      <LogicalName>MonoDevelop.OpenAnyFolder.addin.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
