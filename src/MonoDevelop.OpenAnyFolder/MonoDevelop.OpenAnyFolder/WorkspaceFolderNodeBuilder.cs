@@ -1,10 +1,10 @@
 ﻿//
-// DummyProject.cs
+// WorkspaceFolderNodeBuilder.cs
 //
 // Author:
-//       Matt Ward <matt.ward@xamarin.com>
+//       Matt Ward <matt.ward@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2018 Microsoft
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Threading.Tasks;
-using MonoDevelop.Core;
-using MonoDevelop.Projects;
+using System;
+using MonoDevelop.Ide.Gui;
+using MonoDevelop.Ide.Gui.Components;
 
 namespace MonoDevelop.OpenAnyFolder
 {
-	class DummyProject : Project
+	class WorkspaceFolderNodeBuilder : TypeNodeBuilder
 	{
-		public DummyProject (string folder)
-		{
-			BaseDirectory = folder;
-			Initialize (this);
+		public override Type NodeDataType {
+			get { return typeof (WorkspaceFolder); }
 		}
 
-		protected override Task OnSave (ProgressMonitor monitor)
+		public override Type CommandHandlerType {
+			get { return typeof (WorkspaceFolderCommandHandler); }
+		}
+
+		public override string GetNodeName (ITreeNavigator thisNode, object dataObject)
 		{
-			return Task.FromResult (0);
+			var folder = (WorkspaceFolder)dataObject;
+			return folder.Name;
+		}
+
+		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, NodeInfo nodeInfo)
+		{
+			var folder = (WorkspaceFolder)dataObject;
+			nodeInfo.Label = GLib.Markup.EscapeText (folder.Name);
+			nodeInfo.Icon = Context.GetIcon (Stock.OpenFolder);
+			nodeInfo.ClosedIcon = Context.GetIcon (Stock.ClosedFolder);
 		}
 	}
 }

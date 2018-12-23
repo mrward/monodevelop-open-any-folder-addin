@@ -43,12 +43,12 @@ namespace MonoDevelop.OpenAnyFolder
 	{
 		public override bool CanBuildNode (Type dataType)
 		{
-			return typeof(IFolderItem).IsAssignableFrom (dataType);
+			return typeof (Workspace).IsAssignableFrom (dataType) ||
+				typeof (WorkspaceFolder).IsAssignableFrom (dataType);
 		}
 
 		protected override void Initialize ()
 		{
-			IdeApp.Workspace.FileAddedToProject += OnFileAddedToProject;
 			FileService.FileCreated += OnFileCreated;
 		}
 
@@ -77,12 +77,8 @@ namespace MonoDevelop.OpenAnyFolder
 					.Select (file => new SystemFile (file, null, false)));
 
 				treeBuilder.AddChildren (Directory.EnumerateDirectories (path)
-					.Select (folder => new ProjectFolder (folder, new DummyProject (folder))));
+					.Select (folder => new WorkspaceFolder (folder)));
 			}
-		}
-
-		void OnFileAddedToProject (object sender, ProjectFileEventArgs e)
-		{
 		}
 
 		void OnFileCreated (object sender, FileEventArgs args)
@@ -101,7 +97,7 @@ namespace MonoDevelop.OpenAnyFolder
 			string childPath;
 			ITreeBuilder builder = FindParentFolderNode (path, out childPath);
 			if (builder != null && childPath != path) {
-				builder.AddChild (new ProjectFolder (childPath, null));
+				builder.AddChild (new WorkspaceFolder (childPath));
 			}
 		}
 
@@ -113,7 +109,7 @@ namespace MonoDevelop.OpenAnyFolder
 			if (string.IsNullOrEmpty (basePath))
 				return null;
 
-			ITreeBuilder builder = Context.GetTreeBuilder (new ProjectFolder (basePath, null));
+			ITreeBuilder builder = Context.GetTreeBuilder (new WorkspaceFolder (basePath));
 			if (builder != null)
 				return builder;
 
@@ -131,7 +127,7 @@ namespace MonoDevelop.OpenAnyFolder
 			if (builder.MoveToObject (file))
 				return;
 
-			if (builder.MoveToObject (new ProjectFolder (filePath, null))) {
+			if (builder.MoveToObject (new WorkspaceFolder (filePath))) {
 				if (builder.Filled)
 					builder.AddChild (file);
 			} else {

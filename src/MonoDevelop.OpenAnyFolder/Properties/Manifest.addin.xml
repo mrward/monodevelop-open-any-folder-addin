@@ -26,9 +26,20 @@
 		<NodeBuilder
 			id="OpenAnyFolder.WorkspaceFolderNodeBuilderExtension"
 			class="MonoDevelop.OpenAnyFolder.WorkspaceFolderNodeBuilderExtension" />
+		<NodeBuilder
+			id="OpenAnyFolder.WorkspaceFolderNodeBuilderExtension"
+			class="MonoDevelop.OpenAnyFolder.WorkspaceFolderNodeBuilder" />
 	</Extension>
 
 	<Extension path = "/MonoDevelop/ProjectModel/WorkspaceObjectReaders">
 		<Class id="OpenAnyFolder.Workspace" class="MonoDevelop.OpenAnyFolder.FolderWorkspaceObjectReader" />
+	</Extension>
+
+	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
+		<ItemSet id = "Add" _label = "_Add" autohide="True">
+			<Condition id="ItemType" value="MonoDevelop.OpenAnyFolder.WorkspaceFolder">
+				<CommandItem id="MonoDevelop.Ide.Commands.ProjectCommands.AddNewFiles" />
+			</Condition>
+		</ItemSet>
 	</Extension>
 </ExtensionModel>
