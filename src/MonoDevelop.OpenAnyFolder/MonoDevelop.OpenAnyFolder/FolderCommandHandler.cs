@@ -1,5 +1,5 @@
 ﻿//
-// NewWorkspaceFileHandler.cs
+// FolderCommandHandler.cs
 //
 // Author:
 //       Matt Ward <matt.ward@microsoft.com>
@@ -24,61 +24,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Linq;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Ide;
+using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Gui.Components;
-using MonoDevelop.Ide.Gui.Pads;
 using MonoDevelop.Projects;
 
 namespace MonoDevelop.OpenAnyFolder
 {
-	class NewWorkspaceFileHandler : CommandHandler
+	abstract class FolderCommandHandler : NodeCommandHandler
 	{
-		protected override void Update (CommandInfo info)
+		[CommandHandler (ProjectCommands.AddNewFiles)]
+		public void AddNewFileToProject ()
 		{
-			Workspace workspace = GetWorkspace ();
-			info.Visible = (workspace?.IsFolder () == true);
-		}
+			var folderItem = (IFolderItem)CurrentNode.DataItem;
 
-		protected override void Run (object dataItem)
-		{
-			SolutionPad solutionPad = GetSolutionPad ();
-			Workspace workspace = GetWorkspace (solutionPad);
-			if (workspace == null)
+			if (!IdeApp.ProjectOperations.CreateProjectFile (null, folderItem.BaseDirectory))
 				return;
 
-			if (!IdeApp.ProjectOperations.CreateProjectFile (null, workspace.BaseDirectory))
-				return;
-
-			ITreeNavigator navigator = solutionPad.TreeView.GetNodeAtObject (workspace);
-			if (navigator != null)
-				navigator.Expanded = true;
+			CurrentNode.Expanded = true;
 
 			if (IdeApp.Workbench.ActiveDocument != null)
 				IdeApp.Workbench.ActiveDocument.Window.SelectWindow ();
-		}
-
-		static Workspace GetWorkspace ()
-		{
-			SolutionPad solutionPad = GetSolutionPad ();
-			return GetWorkspace (solutionPad);
-		}
-
-		static SolutionPad GetSolutionPad ()
-		{
-			var pad = IdeApp.Workbench.Pads.FirstOrDefault (p => p.Id == "ProjectPad");
-			return pad?.Content as SolutionPad;
-		}
-
-		static Workspace GetWorkspace (SolutionPad solutionPad)
-		{
-			if (solutionPad == null)
-				return null;
-
-			var selectedNode = solutionPad.TreeView.GetSelectedNode ();
-			return selectedNode?.DataItem as Workspace;
 		}
 	}
 }

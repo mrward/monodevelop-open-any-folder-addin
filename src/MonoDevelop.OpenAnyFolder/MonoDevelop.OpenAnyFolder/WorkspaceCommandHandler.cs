@@ -24,33 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using MonoDevelop.Ide.Gui;
-using MonoDevelop.Ide.Gui.Components;
-using MonoDevelop.Projects;
-
 namespace MonoDevelop.OpenAnyFolder
 {
-	public class WorkspaceNodeBuilderExtension : NodeBuilderExtension
+	class WorkspaceCommandHandler : FolderCommandHandler
 	{
-		public override bool CanBuildNode (Type dataType)
-		{
-			return typeof (Workspace).IsAssignableFrom (dataType);
-		}
-
-		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, NodeInfo nodeInfo)
-		{
-			var workspace = (Workspace)dataObject;
-			if (!workspace.IsFolder ())
-				return;
-
-			nodeInfo.Label = workspace.Name.Substring (1);
-			nodeInfo.Icon = Context.GetIcon (Stock.OpenFolder);
-			nodeInfo.ClosedIcon = Context.GetIcon (Stock.ClosedFolder);
-		}
-
-		public override Type CommandHandlerType {
-			get { return typeof (WorkspaceCommandHandler); }
-		}
 	}
 }

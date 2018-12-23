@@ -32,28 +32,14 @@
 using System.IO;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Core;
-using MonoDevelop.Ide;
 using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide.Gui.Pads;
 
 namespace MonoDevelop.OpenAnyFolder
 {
-	class WorkspaceFolderCommandHandler : NodeCommandHandler
+	class WorkspaceFolderCommandHandler : FolderCommandHandler
 	{
-		[CommandHandler (ProjectCommands.AddNewFiles)]
-		public void AddNewFileToProject ()
-		{
-			var folder = (WorkspaceFolder)CurrentNode.DataItem;
-
-			if (!IdeApp.ProjectOperations.CreateProjectFile (null, folder.BaseDirectory))
-				return;
-
-			CurrentNode.Expanded = true;
-			if (IdeApp.Workbench.ActiveDocument != null)
-				IdeApp.Workbench.ActiveDocument.Window.SelectWindow ();
-		}
-
 		[CommandHandler (ProjectCommands.NewFolder)]
 		void AddNewFolder ()
 		{

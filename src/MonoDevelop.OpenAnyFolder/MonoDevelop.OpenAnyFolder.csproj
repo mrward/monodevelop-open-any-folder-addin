@@ -38,7 +38,8 @@
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolder.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolderNodeBuilder.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolderCommandHandler.cs" />
-    <Compile Include="MonoDevelop.OpenAnyFolder\NewWorkspaceFileHandler.cs" />
+    <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceCommandHandler.cs" />
+    <Compile Include="MonoDevelop.OpenAnyFolder\FolderCommandHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\MonoDevelop.OpenAnyFolder.addin.xml">

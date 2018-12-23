@@ -32,7 +32,6 @@ using System;
 using System.IO;
 using System.Linq;
 using MonoDevelop.Core;
-using MonoDevelop.Ide;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Projects;
