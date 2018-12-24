@@ -36,12 +36,7 @@
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
-		<Condition id="ItemType" value="Workspace">
-			<ItemSet id="Add" _label="_Add" autohide="True">
-				<CommandItem id="MonoDevelop.Ide.Commands.ProjectCommands.AddNewFiles" />
-			</ItemSet>
-		</Condition>
-		<Condition id="ItemType" value="MonoDevelop.OpenAnyFolder.WorkspaceFolder">
+		<Condition id="ItemType" value="MonoDevelop.OpenAnyFolder.WorkspaceFolder|Workspace">
 			<ItemSet id="Add" _label="_Add" autohide="True">
 				<CommandItem id="MonoDevelop.Ide.Commands.ProjectCommands.AddNewFiles" />
 				<SeparatorItem/>

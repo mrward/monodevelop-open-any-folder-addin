@@ -34,7 +34,7 @@ namespace MonoDevelop.OpenAnyFolder
 		public WorkspaceFolder (FilePath folder)
 		{
 			BaseDirectory = folder.CanonicalPath;
-			Name = folder.FileName;
+			Name = BaseDirectory.FileName;
 		}
 
 		public FilePath BaseDirectory { get; private set; }

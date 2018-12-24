@@ -90,19 +90,31 @@ namespace MonoDevelop.OpenAnyFolder
 		{
 			foreach (FileEventInfo e in args) {
 				if (Directory.Exists (e.FileName)) {
-					EnsureReachable (e.FileName + "/");
+					EnsureReachable (e.FileName + "/", isDirectory: true);
 				} else {
 					AddFile (e.FileName);
 				}
 			}
 		}
 
-		void EnsureReachable (string path)
+		void EnsureReachable (string path, bool isDirectory = false)
 		{
 			string childPath;
 			ITreeBuilder builder = FindParentFolderNode (path, out childPath);
-			if (builder != null && childPath != path) {
-				builder.AddChild (new WorkspaceFolder (childPath));
+			if (builder != null) {
+				if (childPath != path) {
+					builder.AddChild (new WorkspaceFolder (childPath));
+				}
+				return;
+			}
+
+			if (!isDirectory)
+				return;
+
+			// Check to see if the path is inside a workspace.
+			builder = FindParentWorkspaceNode (path);
+			if (builder != null) {
+				builder.AddChild (new WorkspaceFolder (path));
 			}
 		}
 
@@ -142,6 +154,16 @@ namespace MonoDevelop.OpenAnyFolder
 			}
 		}
 
+		ITreeBuilder FindParentWorkspaceNode (string path)
+		{
+			ITreeBuilder builder = Context.GetTreeBuilder ();
+
+			if (MoveToWorkspace (builder, path))
+				return builder;
+
+			return null;
+		}
+
 		bool MoveToWorkspace (ITreeBuilder builder, FilePath directoryPath)
 		{
 			Workspace workspace = builder.GetParentDataItem<Workspace> (true);
@@ -151,7 +173,7 @@ namespace MonoDevelop.OpenAnyFolder
 			if (!builder.MoveToObject (workspace))
 				return false;
 
-			return workspace.BaseDirectory == directoryPath;
+			return workspace.BaseDirectory == directoryPath.CanonicalPath.ParentDirectory;
 		}
 	}
 }
