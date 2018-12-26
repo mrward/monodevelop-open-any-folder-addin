@@ -49,11 +49,13 @@ namespace MonoDevelop.OpenAnyFolder
 		protected override void Initialize ()
 		{
 			FileService.FileCreated += OnFileCreated;
+			FileService.FileRemoved += OnFileRemoved;
 		}
 
 		public override void Dispose ()
 		{
 			FileService.FileCreated -= OnFileCreated;
+			FileService.FileRemoved -= OnFileRemoved;
 		}
 
 		public override bool HasChildNodes (ITreeBuilder builder, object dataObject)
@@ -174,6 +176,16 @@ namespace MonoDevelop.OpenAnyFolder
 				return false;
 
 			return workspace.BaseDirectory == directoryPath.CanonicalPath.ParentDirectory;
+		}
+
+		void OnFileRemoved (object sender, FileEventArgs e)
+		{
+			foreach (FileEventInfo info in e) {
+				ITreeBuilder treeBuilder = Context.GetTreeBuilder ();
+				if (treeBuilder.MoveToObject (new WorkspaceFolder (info.FileName))) {
+					treeBuilder.Remove ();
+				}
+			}
 		}
 	}
 }

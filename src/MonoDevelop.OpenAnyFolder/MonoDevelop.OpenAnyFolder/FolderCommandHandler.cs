@@ -95,5 +95,17 @@ namespace MonoDevelop.OpenAnyFolder
 			nav.Selected = true;
 			Tree.StartLabelEdit ();
 		}
+
+		[CommandUpdateHandler (EditCommands.Delete)]
+		void UpdateRemoveItem (CommandInfo info)
+		{
+			info.Enabled = CanDeleteMultipleItems ();
+			info.Text = GettextCatalog.GetString ("Remove");
+		}
+
+		public override void DeleteMultipleItems ()
+		{
+			RemoveWorkspaceFolderHandler.DeleteMultipleItems (CurrentNodes);
+		}
 	}
 }
