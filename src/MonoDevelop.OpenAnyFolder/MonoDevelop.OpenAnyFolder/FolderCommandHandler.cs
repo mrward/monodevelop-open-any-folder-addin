@@ -45,6 +45,11 @@ namespace MonoDevelop.OpenAnyFolder
 {
 	abstract class FolderCommandHandler : NodeCommandHandler
 	{
+		public override void ActivateItem ()
+		{
+			CurrentNode.Expanded = !CurrentNode.Expanded;
+		}
+
 		[CommandHandler (ProjectCommands.AddNewFiles)]
 		public void AddNewFileToProject ()
 		{
