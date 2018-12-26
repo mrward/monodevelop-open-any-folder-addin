@@ -26,10 +26,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// Based on FolderCommandHandler
+// Based on FolderCommandHandler and ProjectFolderCommandHandler
 // MonoDevelop.Ide/MonoDevelop.Ide.Gui.Pads.ProjectPad/FolderNodeBuilder.cs
+// MonoDevelop.Ide/MonoDevelop.Ide.Gui.Pads.ProjectPad/ProjectFolderNodeBuilder.cs
 
+using System;
 using System.IO;
+using System.Linq;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Core;
 using MonoDevelop.Ide;
@@ -106,6 +109,46 @@ namespace MonoDevelop.OpenAnyFolder
 		public override void DeleteMultipleItems ()
 		{
 			RemoveWorkspaceFolderHandler.DeleteMultipleItems (CurrentNodes);
+		}
+
+		public override void RenameItem (string newName)
+		{
+			var folder = (WorkspaceFolder)CurrentNode.DataItem;
+
+			FilePath oldFolderName = folder.BaseDirectory;
+			FilePath newFolderName = oldFolderName.ParentDirectory.Combine (newName);
+
+			if (oldFolderName == newFolderName) {
+				return;
+			}
+
+			try {
+				if (!FileService.IsValidPath (newFolderName) || ContainsDirectorySeparator (newName)) {
+					MessageService.ShowWarning (GettextCatalog.GetString ("The name you have chosen contains illegal characters. Please choose a different name."));
+					return;
+				}
+				if (File.Exists (newFolderName)) {
+					MessageService.ShowWarning (GettextCatalog.GetString ("File or directory name is already in use. Please choose a different one."));
+					return;
+				}
+				// Don't use Directory.Exists because we want to check for the exact case in case-insensitive file systems
+				string directory = Directory.EnumerateDirectories (Path.GetDirectoryName (newFolderName), Path.GetFileName (newFolderName)).FirstOrDefault ();
+				if (directory != null) {
+					MessageService.ShowWarning (GettextCatalog.GetString ("File or directory name is already in use. Please choose a different one."));
+					return;
+				}
+
+				FileService.RenameDirectory (oldFolderName, newName);
+			} catch (ArgumentException) { // new file name with wildcard (*, ?) characters in it
+				MessageService.ShowWarning (GettextCatalog.GetString ("The name you have chosen contains illegal characters. Please choose a different name."));
+			} catch (IOException ex) {
+				MessageService.ShowError (GettextCatalog.GetString ("There was an error renaming the directory."), ex.Message, ex);
+			}
+		}
+
+		static bool ContainsDirectorySeparator (string name)
+		{
+			return name.Contains (Path.DirectorySeparatorChar) || name.Contains (Path.AltDirectorySeparatorChar);
 		}
 	}
 }
