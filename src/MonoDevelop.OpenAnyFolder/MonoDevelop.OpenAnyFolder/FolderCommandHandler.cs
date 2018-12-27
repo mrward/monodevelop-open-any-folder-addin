@@ -31,8 +31,10 @@
 // MonoDevelop.Ide/MonoDevelop.Ide.Gui.Pads.ProjectPad/ProjectFolderNodeBuilder.cs
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Core;
 using MonoDevelop.Ide;
@@ -158,6 +160,11 @@ namespace MonoDevelop.OpenAnyFolder
 			return name.Contains (Path.DirectorySeparatorChar) || name.Contains (Path.AltDirectorySeparatorChar);
 		}
 
+		public override DragOperation CanDragNode ()
+		{
+			return DragOperation.Copy | DragOperation.Move;
+		}
+
 		public override bool CanDropNode (object dataObject, DragOperation operation)
 		{
 			var folder = (IFolderItem)CurrentNode.DataItem;
@@ -166,24 +173,110 @@ namespace MonoDevelop.OpenAnyFolder
 					return true;
 				}
 				return systemFile.Path.ParentDirectory != folder.BaseDirectory;
+			} else if (dataObject is WorkspaceFolder otherFolder) {
+				if (operation == DragOperation.Copy) {
+					return true;
+				}
+				return otherFolder.BaseDirectory != folder.BaseDirectory;
 			}
 			return false;
 		}
 
-		public override void OnNodeDrop (object dataObjects, DragOperation operation)
+		public async override void OnNodeDrop (object dataObjects, DragOperation operation)
 		{
-			var folder = (IFolderItem)CurrentNode.DataItem;
-			if (dataObjects is SystemFile systemFile) {
-				FilePath source = systemFile.Path;
-				FilePath target = folder.BaseDirectory.Combine (source.FileName);
-				if (target == source) {
-					target = WorkspaceFolderOperations.GetTargetCopyName (target, false);
+			FilePath source = null;
+			FilePath target = null;
+			WorkspaceFolder sourceFolder = null;
+
+			var targetFolder = (IFolderItem)CurrentNode.DataItem;
+
+			if (dataObjects is WorkspaceFolder) {
+				sourceFolder = (WorkspaceFolder)dataObjects;
+				source = sourceFolder.BaseDirectory;
+			} else if (dataObjects is SystemFile systemFile) {
+				source = systemFile.Path;
+				target = targetFolder.BaseDirectory.Combine (source.FileName);
+			} else {
+				return;
+			}
+
+			target = targetFolder.BaseDirectory.Combine (source.FileName);
+			// If copying to the same directory, make a copy with a different name
+			if (target == source) {
+				target = WorkspaceFolderOperations.GetTargetCopyName (target, sourceFolder != null);
+			}
+
+			if (dataObjects is WorkspaceFolder) {
+				string q;
+				if (operation == DragOperation.Move) {
+					q = GettextCatalog.GetString ("Do you really want to move the folder '{0}' to the folder '{1}'?", source.FileName, targetFolder.BaseDirectory);
+					if (!MessageService.Confirm (q, AlertButton.Move))
+						return;
+				} else {
+						q = GettextCatalog.GetString ("Do you really want to copy the folder '{0}' to the folder '{1}'?", source.FileName, targetFolder.BaseDirectory);
+					if (!MessageService.Confirm (q, AlertButton.Copy))
+						return;
+				}
+			} else if (dataObjects is SystemFile) {
+				var items = Enumerable.Repeat (target, 1);
+
+				foreach (var file in items) {
+					if (File.Exists (file))
+						if (!MessageService.Confirm (GettextCatalog.GetString ("The file '{0}' already exists. Do you want to overwrite it?", file.FileName), AlertButton.OverwriteFile))
+							return;
+				}
+			}
+
+			var filesToSave = new List<Document> ();
+			foreach (Document doc in IdeApp.Workbench.Documents) {
+				if (doc.IsDirty && doc.IsFile) {
+					if (doc.Name == source || doc.Name.StartsWith (source + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) {
+						filesToSave.Add (doc);
+					}
+				}
+			}
+
+			if (filesToSave.Count > 0) {
+				var sb = new StringBuilder ();
+				foreach (Document doc in filesToSave) {
+					if (sb.Length > 0) sb.Append (",\n");
+					sb.Append (Path.GetFileName (doc.Name));
 				}
 
-				using (ProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetStatusProgressMonitor (GettextCatalog.GetString ("Copying files..."), Stock.StatusWorking, true)) {
-					bool move = operation == DragOperation.Move;
-					WorkspaceFolderOperations.TransferFiles (monitor, source, target, move);
+				string question;
+
+				if (operation == DragOperation.Move) {
+					if (filesToSave.Count == 1)
+						question = GettextCatalog.GetString ("Do you want to save the file '{0}' before the move operation?", sb.ToString ());
+					else
+						question = GettextCatalog.GetString ("Do you want to save the following files before the move operation?\n\n{0}", sb.ToString ());
+				} else {
+					if (filesToSave.Count == 1)
+						question = GettextCatalog.GetString ("Do you want to save the file '{0}' before the copy operation?", sb.ToString ());
+					else
+						question = GettextCatalog.GetString ("Do you want to save the following files before the copy operation?\n\n{0}", sb.ToString ());
 				}
+				AlertButton noSave = new AlertButton (GettextCatalog.GetString ("Don't Save"));
+				AlertButton res = MessageService.AskQuestion (question, AlertButton.Cancel, noSave, AlertButton.Save);
+				if (res == AlertButton.Cancel)
+					return;
+				if (res == AlertButton.Save) {
+					try {
+						foreach (Document doc in filesToSave) {
+							await doc.Save ();
+						}
+					} catch (Exception ex) {
+						MessageService.ShowError (GettextCatalog.GetString ("Save operation failed."), ex);
+						return;
+					}
+				}
+			}
+
+			bool move = operation == DragOperation.Move;
+			string opText = move ? GettextCatalog.GetString ("Moving files...") : GettextCatalog.GetString ("Copying files...");
+
+			using (var monitor = IdeApp.Workbench.ProgressMonitors.GetStatusProgressMonitor (opText, Stock.StatusSolutionOperation, true)) {
+				WorkspaceFolderOperations.TransferFiles (monitor, source, target, move);
 			}
 		}
 	}
