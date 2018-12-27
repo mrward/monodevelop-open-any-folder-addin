@@ -41,6 +41,7 @@
     <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceCommandHandler.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\FolderCommandHandler.cs" />
     <Compile Include="MonoDevelop.OpenAnyFolder\RemoveWorkspaceFolderHandler.cs" />
+    <Compile Include="MonoDevelop.OpenAnyFolder\WorkspaceFolderOperations.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\MonoDevelop.OpenAnyFolder.addin.xml">

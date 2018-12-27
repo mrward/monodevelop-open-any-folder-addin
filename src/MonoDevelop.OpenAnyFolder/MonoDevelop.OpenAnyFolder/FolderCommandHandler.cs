@@ -37,8 +37,10 @@ using MonoDevelop.Components.Commands;
 using MonoDevelop.Core;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Commands;
+using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide.Gui.Pads;
+using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Projects;
 
 namespace MonoDevelop.OpenAnyFolder
@@ -154,6 +156,35 @@ namespace MonoDevelop.OpenAnyFolder
 		static bool ContainsDirectorySeparator (string name)
 		{
 			return name.Contains (Path.DirectorySeparatorChar) || name.Contains (Path.AltDirectorySeparatorChar);
+		}
+
+		public override bool CanDropNode (object dataObject, DragOperation operation)
+		{
+			var folder = (IFolderItem)CurrentNode.DataItem;
+			if (dataObject is SystemFile systemFile) {
+				if (operation == DragOperation.Copy) {
+					return true;
+				}
+				return systemFile.Path.ParentDirectory != folder.BaseDirectory;
+			}
+			return false;
+		}
+
+		public override void OnNodeDrop (object dataObjects, DragOperation operation)
+		{
+			var folder = (IFolderItem)CurrentNode.DataItem;
+			if (dataObjects is SystemFile systemFile) {
+				FilePath source = systemFile.Path;
+				FilePath target = folder.BaseDirectory.Combine (source.FileName);
+				if (target == source) {
+					target = WorkspaceFolderOperations.GetTargetCopyName (target, false);
+				}
+
+				using (ProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetStatusProgressMonitor (GettextCatalog.GetString ("Copying files..."), Stock.StatusWorking, true)) {
+					bool move = operation == DragOperation.Move;
+					WorkspaceFolderOperations.TransferFiles (monitor, source, target, move);
+				}
+			}
 		}
 	}
 }
