@@ -53,7 +53,7 @@ namespace MonoDevelop.OpenAnyFolder
 		}
 
 		[CommandHandler (ProjectCommands.AddNewFiles)]
-		public void AddNewFileToProject ()
+		void AddNewFileToFolder ()
 		{
 			var folderItem = (IFolderItem)CurrentNode.DataItem;
 
